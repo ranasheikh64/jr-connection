@@ -7,6 +7,13 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
+        username: {
+            type: String,
+            unique: true,
+            sparse: true,
+            lowercase: true,
+            trim: true
+        },
         email: {
             type: String,
             required: true,
@@ -29,9 +36,32 @@ const userSchema = new mongoose.Schema(
         isVerified: {
             type: Boolean,
             default: false
+        },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female', 'Other', 'Prefer not to say'],
+            default: 'Prefer not to say'
+        },
+        age: {
+            type: Number,
+            default: null
+        },
+        passion: {
+            type: [String],
+            default: []
+        },
+        profileImage: {
+            type: String,
+            default: null
+        },
+        location: {
+            type: { type: String, enum: ['Point'], default: 'Point' },
+            coordinates: { type: [Number], default: [0, 0] } // [longitude, latitude]
         }
     },
     { timestamps: true }
 );
+
+userSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('User', userSchema);

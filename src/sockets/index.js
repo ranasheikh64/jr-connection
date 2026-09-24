@@ -1,0 +1,51 @@
+const socketIo = require('socket.io');
+const jwt = require('jsonwebtoken');
+
+const registerChatHandlers = require('./handlers/chat.handler');
+const registerMessageHandlers = require('./handlers/message.handler');
+
+const initSockets = (server) => {
+    const io = socketIo(server, {
+        cors: { origin: "*", methods: ["GET", "POST"] }
+    });
+
+    // Authentication Middleware
+    io.use((socket, next) => {
+        const token = socket.handshake.auth.token || socket.handshake.headers.token;
+        if (!token) {
+            return next(new Error("Authentication error: Token not provided"));
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) return next(new Error("Authentication error: Invalid token"));
+            socket.user = decoded.user;
+            next();
+        });
+    });
+
+    io.on("connection", (socket) => {
+        console.log(`User connected: ${socket.user.id}`);
+
+        // Join personal room to receive personal events (like new group added)
+        socket.join(socket.user.id);
+
+        // Client should explicitly emit 'join_chat' to join a specific chat room
+        socket.on("join_chat", (data) => {
+            const room = typeof data === 'string' ? data : data.chatId;
+            if (room) {
+                socket.join(room);
+                console.log(`User ${socket.user.id} joined chat ${room}`);
+            }
+        });
+
+        // Register handlers
+        registerChatHandlers(io, socket);
+        registerMessageHandlers(io, socket);
+
+        socket.on("disconnect", () => {
+            console.log(`User disconnected: ${socket.user.id}`);
+        });
+    });
+};
+
+module.exports = initSockets;

@@ -4,11 +4,16 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { sendOTP } = require('./email.service');
 
-const registerUser = async (name, email, password) => {
+const registerUser = async (name, username, email, password, gender, age, passion, location) => {
     // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         throw new Error('User with this email already exists.');
+    }
+
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+        throw new Error('This username is already taken. Please choose another one.');
     }
 
     // Hash password
@@ -18,8 +23,13 @@ const registerUser = async (name, email, password) => {
     // Create user
     const newUser = new User({
         name,
+        username,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        gender,
+        age,
+        passion,
+        location: location && location.lat && location.lng ? { type: 'Point', coordinates: [parseFloat(location.lng), parseFloat(location.lat)] } : undefined
     });
 
     await newUser.save();

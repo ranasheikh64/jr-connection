@@ -1,0 +1,11 @@
+- `[x]` Create `Chat` Mongoose Model (Group, Lock, Temp Timer)
+- `[x]` Create `Message` Mongoose Model (TTL Index for temporary, Read/Seen by)
+- `[x]` Create `Block` Mongoose Model
+- `[x]` Set up Socket.IO in `src/server.js` with JWT Authentication Middleware
+- `[x]` Create Chat Service (`src/services/chat.service.js`)
+- `[x]` Create Message Service (`src/services/message.service.js`) for pagination & saving
+- `[x]` Create Socket Handlers Architecture (`src/sockets/index.js`)
+- `[x]` Implement `chat.handler.js` (Group creation, block, lock, temp timer)
+- `[x]` Implement `message.handler.js` (Send msg, fetch paginated, mark as read)
+- `[x]` Integrate everything and verify logic
+- `[x]` Cloudinary Integration for Media Upload (`POST /api/upload`)
